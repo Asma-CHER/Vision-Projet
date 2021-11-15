@@ -10,5 +10,7 @@ if img is None:
 else :
     msgBinary = Fonctions.dec_bin(img) #je lui donne l'image recu elle me donne le msg en binaire avec decodage (inversement de la valeur)
     msgText = Fonctions.dec_ASCII(msgBinary)
+    print(" end ",msgText)
+
 
 

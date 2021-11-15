@@ -22,21 +22,11 @@ def dec_bin(table):
 
 
 #fonction de decodage du binaire vers du text (code ascii)
-def getASCII(val_dec):
-
-    pass
-
-
 def dec_ASCII(msgBinary):
     msgText = ""
     k = wrap(msgBinary, 8)
-    #print(k)
 
     for b in k:
-        val_dec = int(b, 2)
-        msgText += chr(val_dec)
-        print(val_dec," = ",chr(val_dec))
+        msgText += chr(int(b, 2))
 
-
-    print(" end ",msgText)
     return msgText
