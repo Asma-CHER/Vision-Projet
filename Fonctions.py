@@ -28,8 +28,10 @@ def dec_bin(table):
 def dec_ASCII(msgBinary):
     msgText = ""
     k = wrap(msgBinary, 8)
+    #print(k)
 
     for b in k:
+        #print(int(b, 2))
         msgText += chr(int(b, 2))
 
     return msgText
