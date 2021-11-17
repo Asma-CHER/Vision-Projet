@@ -1,18 +1,7 @@
-import os
-import random
-
 import cv2
-from typing import Iterable
-import numpy as np
-from PIL import Image
 from textwrap import wrap
 
-''' Fonctions '''
-
-
 def dec_bin(table):
-    print("heere2", table[0, 7])
-
     msgBinaire = ""
     h, w = table.shape
     #print(h," ",w)
@@ -48,12 +37,6 @@ def dec_ASCII(msgBinary):
 
     return msgText
 
-
-#def to_bit_generator(msg):
-#    for c in (msg):
-#        o = ord(c)  #unicode
-#        for i in range(8):
-#            yield (o & (1 << i)) >> i
 def to_bit_generator(msg):
     result = []
     for c in msg:
