@@ -20,7 +20,8 @@ def dec_ASCII(msgBinary):
     k = wrap(msgBinary, 8)
     for b in k:
         n = int(b, 2)
-        if n<=172 :
+        #msgText += chr(n)
+        if (n<=127) or (n>=192 and n<=255) :
             msgText += chr(n)
         else:
             break
