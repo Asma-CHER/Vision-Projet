@@ -34,7 +34,6 @@ def decode(image):
 
 
 img = cv2.imread('imgsec.png', cv2.IMREAD_GRAYSCALE)
-
 if img is None:
     print('image vide')
 else:
