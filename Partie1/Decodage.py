@@ -1,7 +1,7 @@
 import cv2
 from textwrap import wrap
 
-def dec_bin(table):
+def dec_bin(table): # elle retourne le msg en binaire de l'image
     msgBinaire = ""
     h, w = table.shape
     for y in range(h):

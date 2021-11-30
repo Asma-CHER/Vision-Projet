@@ -35,8 +35,9 @@ def code(message, image) :
 
     return image
 
+path =input('Donnez le path\n')
 
-image = cv2.imread('image.png', cv2.IMREAD_GRAYSCALE)
+image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 #message = "Un texte est une série orale ou écrite de mots perçus comme constituant un ensemble cohérent, porteur de sens et utilisant les structures propres à une langue (conjugaisons, construction et association des phrases). ... L'étude formelle des textes s'appuie sur la linguistique, qui est l'approche scientifique du langage."
 
 message =input('Donnez le message à coder\n')
