@@ -1,3 +1,5 @@
+import math
+
 import Functions_Etape1 as f1
 import numpy as np
 from numpy import array
@@ -36,12 +38,20 @@ def Normale():
 
     for y in range(512):  # ligne par ligne
         for x in range(612):
-            normal[y,x][0] = mult[0,y*x]
-            normal[y,x][1] = mult[1,y*x]
-            normal[y,x][2] = mult[2,y*x]
+            #normal[y,x][0] = mult[0,y*x]    #Nx
+            #normal[y,x][1] = mult[1,y*x]    #Ny
+            #normal[y,x][2] = mult[2,y*x]    #Nz
 
             # on calcule la norme (longeur)
+            norme = math.sqrt(pow(mult[0,y*x],2)+pow(mult[1,y*x],2)+pow(mult[2,y*x],2))
+
             # on normalise les donnees
+            normal[y,x][0] = mult[0,y*x]/norme    #Nx normalisee
+            normal[y,x][1] = mult[1,y*x]/norme    #Ny normalisee
+            normal[y,x][2] = mult[2,y*x]/norme    #Nznormalisee
+
+
+
 
 
     return normal
