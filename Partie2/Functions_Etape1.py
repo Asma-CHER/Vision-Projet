@@ -24,6 +24,7 @@ def load_lightSources():
                 valDouble.append(float(v))
 
             # print(cpt," : ",val)
+            #np.flip(valDouble, 0)
             vecDirec.append(valDouble)
             a = np.array(vecDirec)
         #print(a)
@@ -48,6 +49,7 @@ def load_intensSources():
             for v in val:
                 valDouble.append(float(v))
 
+
             # print(cpt," : ",val)
             vecIntes.append(valDouble)
             a = np.array(vecIntes)
@@ -66,23 +68,17 @@ def load_objMask():
     if image is None:
         print('image vide')
     else:
-
         h, w = image.shape
         mat = []
         for y in range(h):  # ligne par ligne
             val = []
             for x in range(w):  # colonne par colonne
                 if image[y, x] == 0:
-                    # print(" here ",x)
                     val.append(0)
                 else:
-                    # print(" ********************************** ",x)
                     val.append(1)
             mat.append(val)
         mask = np.array(mat)
-        #print(image.shape)
-        #print(len(mat))
-        #print(mat)
     return mask
 
 
@@ -95,30 +91,34 @@ def load_N_images():
     with open(path_file, 'r', encoding='utf-8') as file:
         lines = file.read().splitlines()
         for line in lines:
-            image = cv2.imread(str("datasetVision/" + str(line)), -1)  # read with uint16
+            image = cv2.imread(str("datasetVision/" + str(line)), cv2.IMREAD_UNCHANGED)  # read with uint16
             if image is None:
                 print('datasetVision/' + str(line), 'vide')
             else:
                 # changer l'intervalle des valuers de uint16 [0 , 216-1] à float32 [0 , 1] (ON DEVISE chaque valeur sur 2**16-1)
-                #image = image.astype(np.float32)
+                image = image.astype(np.float32)
                 val_16 = math.pow(2,16)-1
                 image_Float = image/val_16
-                #print("*********************************",image_Float)
                 table.append(image_Float)
+
         print(len(table))
     return table
 
 
 # Diviser chaque pixel sur l'intensite de la source (B/intB, G/intG, R/intR) #chaque image sur une ligne
-def div_image_intens(image, vecInt):
+def div_image_intens(mask, image, vecInt):
     h, w ,c = image.shape
     imageDivIntens = np.zeros(image.shape, np.float32)
 
+
     for y in range(h):  # ligne par ligne
         for x in range(w):
-            imageDivIntens[y, x][0] = image[y, x][0] / vecInt[2]
-            imageDivIntens[y, x][1] = image[y, x][1] / vecInt[1]
-            imageDivIntens[y, x][2] = image[y, x][2] / vecInt[0]
+            if(mask[y,x]!=0):
+                imageDivIntens[y, x, 0] = image[y, x, 0] / vecInt[2]
+                imageDivIntens[y, x, 1] = image[y, x, 1] / vecInt[1]
+                imageDivIntens[y, x, 2] = image[y, x, 2] / vecInt[0]
+            else:
+                imageDivIntens[y, x]=0
     return imageDivIntens
 
 # Convertir les images en niveau de gris (NVG = 0.3 * R + 0.59 * G + 0.11 * B)
@@ -127,13 +127,14 @@ def image_in_gray(image):
     imageGray = np.zeros((h,w), np.float32)
     for y in range(h):  # ligne par ligne
         for x in range(w):
-            imageGray[y,x]= image[y,x][0]*0.11+ image[y,x][1]*0.59+ image[y,x][2]*0.3
+            imageGray[y,x]= image[y, x, 0]*0.11+ image[y, x, 1]*0.59+ image[y, x, 2]*0.3
     return imageGray
 
 def load_images():
 
     intens = load_intensSources() #fonction qui charge la matrice des intensites
     table = load_N_images() #fonction qui charge les N images du fichier filenames.txt
+    mask = load_objMask()
     tableDivIntens = []
     tableGray = []
     listAll =  []
@@ -141,9 +142,8 @@ def load_images():
 
     cpt=0
     for image in table:
-
         # Diviser chaque pixel sur l'intensite de la source (B/intB, G/intG, R/intR) #chaque image sur une ligne
-        imgIntens = div_image_intens(image,intens[cpt])
+        imgIntens = div_image_intens(mask, image,intens[cpt])
         cpt += 1
         tableDivIntens.append(imgIntens)
 
@@ -153,18 +153,17 @@ def load_images():
 
         # redimensionner l'image telle que chaque image est represnetee dans une seule ligne.
         imageReshape = imgGray.reshape(1,-1)
-        #print(imageReshape.shape)
 
         # Ajouter les images dans un tableau (pour former une matrice de N lignes et (h*w) colonnes où chaque ligne représente une image).
-        listAll.append(imageReshape)
+        #listAll.append(imageReshape)
         if cpt == 1: #si c'est la premiere image -> we put it directly
             matriceAll = imageReshape
         else: # else we concatenate the previous image vectors with the new one
             matriceAll = np.concatenate((matriceAll,imageReshape),axis=0)
     #print(len(listAll))
     #matriceAll = np.array(listAll)
-    print(matriceAll.shape)
-    print(matriceAll)
+    #print(matriceAll.shape)
+    #print(matriceAll)
 
     # Retourner la matrice des images.
     return matriceAll
