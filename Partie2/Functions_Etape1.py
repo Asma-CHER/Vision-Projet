@@ -7,24 +7,19 @@ import numpy as np
 fonction load_lightSources qui return une matrice (Nx3) qui représente les positions des sources lumineuses 
 (chaque ligne représente une position x,y,z) '''
 def load_lightSources():
-    #vec3D = np.zeros((i, j))
 
     with open('datasetVision/light_directions.txt', 'r', encoding='utf-8') as file:
         lines = file.readlines()
-        #print(len(lines))
-        cpt = 0
 
         vecDirec = [];
         for line in lines:
-            # print(cpt," : ",line)
-            val = []
             valDouble = []
             val = line.strip().split(" ")
             for v in val:
                 valDouble.append(float(v))
 
             # print(cpt," : ",val)
-            #np.flip(valDouble, 0)
+            # np.flip(valDouble, 0)
             vecDirec.append(valDouble)
             a = np.array(vecDirec)
         #print(a)
@@ -37,23 +32,16 @@ Créer une fonction load_intensSources qui return une matrice (N*3) qui représe
 def load_intensSources():
     with open('datasetVision/light_intensities.txt', 'r', encoding='utf-8') as file2:
         lines = file2.readlines()
-        #print(len(lines))
-        cpt = 0
 
         vecIntes = [];
         for line in lines:
-            # print(cpt," : ",line)
-            val = []
             valDouble = []
             val = line.strip().split(" ")
             for v in val:
                 valDouble.append(float(v))
 
-
-            # print(cpt," : ",val)
             vecIntes.append(valDouble)
             a = np.array(vecIntes)
-        #print(a)
 
     return a
 
