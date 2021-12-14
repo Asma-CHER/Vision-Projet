@@ -150,8 +150,8 @@ def load_images():
             matriceAll = np.concatenate((matriceAll,imageReshape),axis=0)
     #print(len(listAll))
     #matriceAll = np.array(listAll)
-    #print(matriceAll.shape)
-    #print(matriceAll)
+    print(matriceAll.shape)
+    #print(matriceAll.dtype)
 
     # Retourner la matrice des images.
     return matriceAll
