@@ -13,12 +13,20 @@ normal = f2.calcul_needle_map()
 
 #m = f2.showImage(n)
 
+#****************************************
+#mask = f1.load_objMask()
+#z= f3.depth_map_generation(mask,normal)
+#imageZ= f3.z(mask,z)
+#****************************************
+mask = f1.load_objMask()
+z = f3.calcul_3D(mask,normal)
+imageZ= f3.z(mask,z)
 
-imageZ= f3.z(normal)
-print(imageZ)
 
-cv2.imshow("image source",normal)
-cv2.imshow("image z",imageZ)
+
+#print(imageZ)
+#cv2.imshow("image nnn",normal)
+#cv2.imshow("image z",imageZ)
 
 #cv2.imwrite('imageNormale.png', normal)
 cv2.waitKey(0)
