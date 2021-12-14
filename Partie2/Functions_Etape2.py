@@ -4,29 +4,34 @@ import Functions_Etape1 as f1
 import numpy as np
 from numpy.linalg import pinv
 import pickle
+import cv2
 
 '''
 Créer une fonction calcul_needle_map qui calcule le champ de normales (le vecteur normal pour chaque pixel).
 '''
 def calcul_needle_map():
-    #Charger les N images dans une variable obj_images(à l'aide de la fonction: load_images)
+    # Charger les N images dans une variable obj_images
     #obj_images = f1.load_images()
     obj_images = read_file("normal.pkl")
+    print(obj_images.dtype)
 
-    #charger les positions des sources lumineuses dans une variable light_sources(à l'aide de la fonction: load_lightSources
-    lights = f1.load_lightSources()
+    # charger les positions des sources lumineuses dans une variable light_sources
+    light_sources = f1.load_lightSources()
 
-    #charger le masque de l’objet dans une variable obj_masques(à l’aide de la fonction: load_objMask)
+    # charger le masque de l’objet dans une variable obj_masques
     obj_masques = f1.load_objMask()
 
-    #Calculer les normales de l'objet(une matrice de h lignes, w colonnes et trois composantes x, y, z
-    normal =  Normale(obj_images,lights,obj_masques)
+    # Calculer les normales de l'objet
+    normal =  Normale(obj_images,light_sources,obj_masques)
 
-    return showImage(obj_masques,normal)
+    # Afficher les normales dans une image (x,y,z au lieu de BGR)
+    #imageINT = showImage(obj_masques,normal)
+
+    return normal
 
 
 
-
+#obj_images = read_file("normal.pkl")
 
 def save_file(x):
     with open("normal.pkl", 'wb') as f:
@@ -85,11 +90,14 @@ def Normale(obj_images,lights,obj_masques):
 
 def showImage(mask, normal):
 
+    image = np.zeros(normal.shape,np.uint8)
     h, w, c = normal.shape
     for y in range(h):
         for x in range(w):
             if mask[y,x] == 1 :
-                normal[y,x] = (normal[y,x] + 1) / 2 * 255
+                image[y,x] = (normal[y,x] + 1) / 2 * 255
 
-    normal = normal.astype(np.uint8())
-    return normal
+    #normal = normal.astype(np.uint8())
+    cv2.imshow("image source", image)
+
+    return image
