@@ -1,16 +1,18 @@
 import math
 import pickle
 
+
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from matplotlib.ticker import LinearLocator
 from mpl_toolkits.mplot3d import Axes3D
 # Axes3D import has side effects, it enables using projection='3d' in add_subplot
 import random
-
+import numpy.linalg as LA
 from scipy.sparse import csr_matrix, lil_matrix
 from numpy.linalg import pinv
-
+#from skimage.transform import resize as imresize
+#from skimage.filters import gaussian
 import Functions_Etape1 as f1
 import numpy as np
 
@@ -159,8 +161,8 @@ def depth_map_generation(obj_mask, normals_mat):
     #save_file(z)
     return z
 
-def z(mask , z):
-    '''
+def z(mask , image):
+
     yy = []
     xx = []
     h, w = mask.shape
@@ -172,12 +174,10 @@ def z(mask , z):
 
     fig = plt.figure()
     ax = fig.add_subplot( projection='3d')
-    yAxe  = np.arange(0, 512, 1)
-    xAxe  = np.arange(0, 612, 1)
+    yAxe  = np.arange(image.shape[0])
+    xAxe  = np.arange(image.shape[1])
 
-    x = np.array(xx)
-    #print("here x ", x)
-    y = np.array(yy)
+
 
     X, Y = np.meshgrid(xAxe, yAxe)
 
@@ -186,46 +186,133 @@ def z(mask , z):
     #zs = np.array(fun(imageG, x, y))
     Z = zs.reshape(X.shape)
 
-    ax.plot_surface(X, Y, Z, cmap="summer") #linewidth=0,
+    ax.set_zlim3d(-200, 200)
+    ax.plot_surface(X, Y, Z, cmap="Greys") #linewidth=0,
                            #cstride=1, rstride=1)
 
     ax.set_xlabel('X Label')
     ax.set_ylabel('Y Label')
     ax.set_zlabel('Z Label')
 
+    #ax.set_zlim3d(0,200)
     plt.show()
     '''
 
     ax = plt.axes(projection="3d")
     x, y = np.mgrid[0:512:512j, 0:612:612j]
-    ax.plot_surface(x, y, z,cmap="summer")
+    ax.plot_surface(x, y, z,cmap="summer" , linewidth=0, antialiased=False)
     plt.show()
-
+'''
 
     #return image
+def unit_vector(vector):
+    """ Returns the unit vector of the vector.  """
+    return vector / np.linalg.norm(vector)
+def dotproduct(v1, v2):
+  return sum((a*b) for a, b in zip(v1, v2))
 
+def length(v):
+  return math.sqrt(dotproduct(v, v))
+
+def angle(v1, v2):
+  return math.acos(dotproduct(v1, v2) / (length(v1) * length(v2)))
 
 def calcul_3D(mask, image):
 
-    imageG = f1.image_in_gray(image)
-    #imageG = (imageG+1)/2*255
-    p = np.gradient(imageG, 1, axis=1)
-    q = np.gradient(imageG, 1, axis=0)
+    #imageG = f1.image_in_gray(image)
+    imageG = image
+    '''
+    imageG = image
+    h, w, c = imageG.shape
+    z = np.zeros((h, w), np.float32)
+
+    for y in range(1, h):
+        z[y,0] = 0
+
+    vecX = np.array([0,1,0])
+    for y in range(h):
+        for x in range(1,w):
+            if mask[y,x] == 1 :
+                t_x_y = np.transpose(imageG[y,x])
+                #t_x_y = np.rot90(imageG[y,x])
+                #print("T ",t_x_y)
+                #alpha2 = np.angle(imageG[y,x],vecX)
+                v1_u = unit_vector(t_x_y)
+                v2_u = unit_vector(vecX)
+                rad = np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+                #rad = angle(imageG[y,x],vecX)
+                deg = np.rad2deg(rad)
+                #deg = 90-alpha2Deg
+
+                #deg = np.rad2deg(rad)
+                print("here deg ",deg)
+
+                #print(alpha.dtype)
+
+                z[y,x]= z[y, x-1] + math.tan(deg)
 
 
-    z =np.zeros(imageG.shape,np.float32)
-    h, w =imageG.shape
 
+    '''
+
+    #p = np.gradient(imageG[:,:,1], 1, axis=1)
+    #q = np.gradient(imageG[:,:,1], 1, axis=0)
+
+    #print(p[300,300],q[300,300])
+
+    h, w, c = imageG.shape
+    z =np.zeros((h,w),np.float32)
+
+    n_x, n_y, n_z = imageG[:,:,0], imageG[:,:,1], imageG[:,:,2]
+
+    n_z[n_z==0] =1
+    p = n_x/n_z
+    q = n_y/n_z
+
+    #zx = np.zeros((h,w),np.float32)
+    #zy = np.zeros((h,w),np.float32)
+
+   # for x in range(w-1):
+    #    zx[:,x+1] = zx[:,x] - p[:,x]
+
+    #for y in range(h - 1):
+     #   zy[y + 1, :] = zy[y, :] - q[y, :]
+
+    for x in range(1, w):
+        z[0, x] = z[0, x - 1] - p[0, x]
+
+    for x in range(w):
+        for y in range(1, h):
+            if mask[y, x] == 1:
+                z[y, x] = z[y - 1, x] - q[y, x]
+            else:
+                z[y, x] = 0
+    #z = (zx-zy)/2
+
+
+    '''
     for y in range(1,h):
-        z[y,0] = z[y-1,0] - q[y,0]
+        q = imageG[y, 0, 1] / imageG[y, 0, 2]
+        z[y,0] = z[y-1,0] - q
 
     for y in range(h):
         for x in range(1,w):
             if mask[y,x] == 1 :
-                z[y,x] = z[y, x-1] - p[y,x]
+                p = imageG[y,x,0]/imageG[y,x,2]
+                z[y,x] = z[y, x-1] - p
+            else:
+                z[y,x]=0
+    
+    for x in range(1,w):
+        z[0,x] = z[0,x-1] - p[0,x]
 
+    for x in range(w):
+        for y in range(1,h):
+            if mask[y,x] == 1 :
+                z[y,x] = z[y-1, x] - q[y,x]
+            else:
+                z[y,x]=0
 
-
-
-
-    return z
+    z = np.sqrt(gaussian(imresize(z, z.shape, order=2, mode='reflect'), 10))
+    '''
+    return z*mask
